@@ -16,6 +16,7 @@ import java.util.List;
 public class MainActivity extends WearableActivity {
 
     private TextView mTextView;
+    private int SECOND_ACTIVITY_REQCODE=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,15 +24,16 @@ public class MainActivity extends WearableActivity {
         //means app will look into the resources folder, then the layouts folder and finally the activity main
         setContentView(R.layout.activity_main);
 
-        mTextView = (TextView) findViewById(R.id.text);
+        mTextView = (TextView) findViewById(R.id.textmain);
 
         Button b1 = findViewById(R.id.button1);
+
+
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTextView.setText("WARDI 2020");
-
-                displaySpeechRecognizer();
+                Intent intent = new Intent(getApplicationContext(), CountDownActivity.class);
+                startActivityForResult(intent,SECOND_ACTIVITY_REQCODE);
             }
         });
 
@@ -39,29 +41,22 @@ public class MainActivity extends WearableActivity {
         setAmbientEnabled();
     }
 
-    private static final int SPEECH_REQUEST_CODE = 0;
 
-    // Create an intent that can start the Speech Recognizer activity
-    private void displaySpeechRecognizer() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        // Start the activity, the intent will be populated with the speech text
-        startActivityForResult(intent, SPEECH_REQUEST_CODE);
-    }
-
-    // This callback is invoked when the Speech Recognizer returns.
-    // This is where you process the intent and extract the speech text from the intent.
+    // This method is called when the second activity finishes
     @Override
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    Intent data) {
-        if (requestCode == SPEECH_REQUEST_CODE && resultCode == RESULT_OK) {
-            List<String> results = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            String spokenText = results.get(0);
-            mTextView.setText(spokenText);
-            // Do something with spokenText
-        }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        // Check that it is the SecondActivity with an OK result
+        if (requestCode == SECOND_ACTIVITY_REQCODE) {
+            if (resultCode == RESULT_OK) {
+
+                // Get String data from Intent
+                String returnString = data.getStringExtra("keyName");
+
+                mTextView.setText(returnString);
+            }
+        }
     }
+
 }
